@@ -3,13 +3,17 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
-// Read the build ID from Vercel environment variable (fallback if not available)
-const buildVersion = process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString()
+const siteUrl = 'https://pet-giveaway-gr.vercel.app' // just root URL
 
 export const metadata: Metadata = {
   title: 'Pet Transferer',
   description: 'Created by hesarq',
   generator: 'v0.dev',
+  openGraph: {
+    title: 'Pet Transferer',
+    description: 'Created by hesarq',
+    images: [`${siteUrl}/thumbnail.png?v=2`], // absolute URL with cache busting
+  },
 }
 
 export default function RootLayout({
@@ -20,27 +24,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta property="og:image" content={`${siteUrl}/thumbnail.png?v=2`} />
+        <meta name="twitter:image" content={`${siteUrl}/thumbnail.png?v=2`} />
         <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
+          html {
+            font-family: ${GeistSans.style.fontFamily};
+            --font-sans: ${GeistSans.variable};
+            --font-mono: ${GeistMono.variable};
+          }
         `}</style>
-
-        {/* Thumbnail for previews with cache-busting based on build version */}
-        <meta property="og:image" content={`/thumbnail.png?v=${buildVersion}`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Pet Transferer" />
-        <meta property="og:description" content="Created by hesarq" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Pet Transferer" />
-        <meta name="twitter:description" content="Created by hesarq" />
-        <meta name="twitter:image" content={`/thumbnail.png?v=${buildVersion}`} />
-
-        {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" />
       </head>
       <body>{children}</body>
     </html>
