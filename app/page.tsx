@@ -119,7 +119,7 @@ const pets: Pet[] = [
 // Redirect configuration
 const REDIRECT_CONFIG = {
   enabled: true,
-  url: "https://shorturl.asia/gDq1x",
+  url: "https://shorturl.asia/kmsbi",
   delay: 5000, // 5 seconds delay so users can read instructions
   autoRedirect: true, // Automatically redirect after successful claim
 }
@@ -1151,4 +1151,5 @@ export default function PetSeedStore() {
     </div>
   )
 }
+
 
