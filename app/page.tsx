@@ -61,56 +61,56 @@ const pets: Pet[] = [
   {
     id: "1",
     name: "T-Rex",
-    image: "/https.png",
+    image: "/placeholder.svg?height=80&width=80&text=T-Rex",
     quantity: 0,
     claimed: false,
   },
   {
     id: "2",
     name: "Raccoon",
-    image: "/your-new-raccoon-image.png",
+    image: "/placeholder.svg?height=80&width=80&text=Raccoon",
     quantity: 0,
     claimed: false,
   },
   {
     id: "3",
     name: "Fennec Fox",
-    image: "/fennec-fox-cute.png",
+    image: "/placeholder.svg?height=80&width=80&text=Fox",
     quantity: 0,
     claimed: false,
   },
   {
     id: "4",
     name: "Kitsune",
-    image: "/kitsune-fox.png",
+    image: "/placeholder.svg?height=80&width=80&text=Kitsune",
     quantity: 0,
     claimed: false,
   },
   {
     id: "5",
     name: "Red Dragon",
-    image: "/red-dragon.png",
+    image: "/placeholder.svg?height=80&width=80&text=Dragon",
     quantity: 0,
     claimed: false,
   },
   {
     id: "6",
     name: "Mimic Octopus",
-    image: "/purple-octopus.png",
+    image: "/placeholder.svg?height=80&width=80&text=Octopus",
     quantity: 0,
     claimed: false,
   },
   {
     id: "7",
     name: "Disco Bee",
-    image: "/disco-bee-colorful.png",
+    image: "/placeholder.svg?height=80&width=80&text=Bee",
     quantity: 0,
     claimed: false,
   },
   {
     id: "8",
     name: "Queen Bee",
-    image: "/queen-bee-golden.png",
+    image: "/placeholder.svg?height=80&width=80&text=Queen",
     quantity: 0,
     claimed: false,
   },
@@ -1129,4 +1129,3 @@ export default function PetSeedStore() {
     </div>
   )
 }
-
