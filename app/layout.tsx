@@ -25,16 +25,16 @@ html {
 }
         `}</style>
 
-        {/* Thumbnail for link previews (Open Graph + Twitter) */}
-        <meta property="og:image" content="/thumbnail.png" />
+        {/* Thumbnail for previews with cache-busting */}
+        <meta property="og:image" content="/thumbnail.png?v=2" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Pet Transferer" />
         <meta property="og:description" content="Created by hesarq" />
-        
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Pet Transferer" />
         <meta name="twitter:description" content="Created by hesarq" />
-        <meta name="twitter:image" content="/thumbnail.png" />
+        <meta name="twitter:image" content="/thumbnail.png?v=2" />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
