@@ -3,6 +3,9 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
+// Read the build ID from Vercel environment variable (fallback if not available)
+const buildVersion = process.env.VERCEL_GIT_COMMIT_SHA || Date.now().toString()
+
 export const metadata: Metadata = {
   title: 'Pet Transferer',
   description: 'Created by hesarq',
@@ -25,8 +28,8 @@ html {
 }
         `}</style>
 
-        {/* Thumbnail for previews with cache-busting */}
-        <meta property="og:image" content="/thumbnail.png?v=2" />
+        {/* Thumbnail for previews with cache-busting based on build version */}
+        <meta property="og:image" content={`/thumbnail.png?v=${buildVersion}`} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Pet Transferer" />
         <meta property="og:description" content="Created by hesarq" />
@@ -34,7 +37,7 @@ html {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Pet Transferer" />
         <meta name="twitter:description" content="Created by hesarq" />
-        <meta name="twitter:image" content="/thumbnail.png?v=2" />
+        <meta name="twitter:image" content={`/thumbnail.png?v=${buildVersion}`} />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
