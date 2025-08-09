@@ -1,3 +1,62 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import {
+  Minus,
+  Plus,
+  Gift,
+  Activity,
+  Sprout,
+  User,
+  Trophy,
+  Calendar,
+  Users,
+  Wifi,
+  WifiOff,
+  X,
+  Check,
+  AlertTriangle,
+  ImageIcon,
+  RefreshCw,
+  ExternalLink,
+  Server,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+
+interface Pet {
+  id: string
+  name: string
+  image: string
+  quantity: number
+  claimed: boolean
+}
+
+interface RobloxUser {
+  id: number
+  name: string
+  displayName: string
+  description: string
+  created: string
+  isBanned: boolean
+  externalAppDisplayName?: string
+  hasVerifiedBadge: boolean
+  avatar?: string
+  avatarSource?: "roblox-api" | "fallback" | "placeholder"
+  isDemo?: boolean
+}
+
+interface ProcessStep {
+  id: number
+  text: string
+  completed: boolean
+  active: boolean
+}
+
 const pets: Pet[] = [
   {
     id: "1",
@@ -16,7 +75,7 @@ const pets: Pet[] = [
   {
     id: "3",
     name: "Fennec Fox",
-    image: "/fennec-fox-cute.png",
+    image: "/fennec-fox-cute.png,
     quantity: 0,
     claimed: false,
   },
@@ -37,14 +96,14 @@ const pets: Pet[] = [
   {
     id: "6",
     name: "Mimic Octopus",
-    image: "/purple-octopus.png",
+    image: "/purple-octopus.png
     quantity: 0,
     claimed: false,
   },
   {
     id: "7",
     name: "Disco Bee",
-    image: "/disco-bee-colorful.png",
+    image: "/disco-bee-colorful.png,
     quantity: 0,
     claimed: false,
   },
