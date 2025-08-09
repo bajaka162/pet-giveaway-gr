@@ -61,7 +61,7 @@ const pets: Pet[] = [
   {
     id: "1",
     name: "T-Rex",
-    image: "https://example.com/your-trex-image.png", // ← External URL
+    image: "https.png", // ← External URL
     quantity: 0,
     claimed: false,
   },
