@@ -61,7 +61,7 @@ const pets: Pet[] = [
   {
     id: "1",
     name: "T-Rex",
-    image: "/placeholder.svg?height=80&width=80&text=T-Rex",
+    image: "/https.png",
     quantity: 0,
     claimed: false,
   },
@@ -1151,3 +1151,4 @@ export default function PetSeedStore() {
     </div>
   )
 }
+
