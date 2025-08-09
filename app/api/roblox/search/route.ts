@@ -9,77 +9,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const cleanUsername = username.trim()
-
-    // Try the official Roblox API first
+    // Fetch from Roblox API
     const response = await fetch(
-      `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanUsername)}&limit=1`,
+      `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=10`,
       {
-        method: "GET",
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          Origin: "https://www.roblox.com",
-          Referer: "https://www.roblox.com/",
         },
       },
     )
 
-    if (response.ok) {
-      const data = await response.json()
-      console.log("✅ Real Roblox API success:", data)
-      return NextResponse.json({ ...data, isDemo: false })
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to search user" }, { status: response.status })
     }
 
-    // If that fails, try the username lookup endpoint
-    const usernameResponse = await fetch("https://users.roblox.com/v1/usernames/users", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-      body: JSON.stringify({
-        usernames: [cleanUsername],
-        excludeBannedUsers: true,
-      }),
-    })
+    const data = await response.json()
 
-    if (usernameResponse.ok) {
-      const usernameData = await usernameResponse.json()
-      console.log("✅ Real Roblox username API success:", usernameData)
-      return NextResponse.json({ data: usernameData.data || [], isDemo: false })
+    if (!data.data || data.data.length === 0) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    console.log("⚠️ Roblox API failed, using demo mode")
-
-    // Only use demo mode as last resort
     return NextResponse.json({
-      data: [
-        {
-          id: Math.floor(Math.random() * 1000000),
-          name: cleanUsername,
-          displayName: cleanUsername,
-          hasVerifiedBadge: false,
-        },
-      ],
-      isDemo: true,
+      data: data.data,
+      isDemo: false,
     })
   } catch (error) {
-    console.error("❌ API Error:", error)
-
-    // Return demo data only on error
-    return NextResponse.json({
-      data: [
-        {
-          id: Math.floor(Math.random() * 1000000),
-          name: username.trim(),
-          displayName: username.trim(),
-          hasVerifiedBadge: false,
-        },
-      ],
-      isDemo: true,
-    })
+    console.error("Roblox search API error:", error)
+    return NextResponse.json({ error: "API request failed" }, { status: 500 })
   }
 }
