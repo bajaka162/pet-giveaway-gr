@@ -8,48 +8,32 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
   }
 
   try {
+    // Fetch from Roblox API
     const response = await fetch(`https://users.roblox.com/v1/users/${userId}`, {
-      method: "GET",
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        Origin: "https://www.roblox.com",
-        Referer: "https://www.roblox.com/",
       },
     })
 
-    if (response.ok) {
-      const data = await response.json()
-      console.log("✅ Real user data fetched:", data)
-      return NextResponse.json({ ...data, isDemo: false })
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to fetch user data" }, { status: response.status })
     }
 
-    console.log("⚠️ User API failed, using demo data")
+    const data = await response.json()
 
-    // Return demo data only if real API fails
     return NextResponse.json({
-      id: Number.parseInt(userId),
-      name: `User${userId}`,
-      displayName: `User${userId}`,
-      description: "Real API unavailable - demo profile",
-      created: "2020-01-01T00:00:00.000Z",
-      isBanned: false,
-      hasVerifiedBadge: false,
-      isDemo: true,
+      id: data.id,
+      name: data.name,
+      displayName: data.displayName,
+      description: data.description,
+      created: data.created,
+      isBanned: data.isBanned,
+      externalAppDisplayName: data.externalAppDisplayName,
+      hasVerifiedBadge: data.hasVerifiedBadge,
+      isDemo: false,
     })
   } catch (error) {
-    console.error("❌ User API Error:", error)
-
-    return NextResponse.json({
-      id: Number.parseInt(userId),
-      name: `User${userId}`,
-      displayName: `User${userId}`,
-      description: "API connection failed - demo profile",
-      created: "2020-01-01T00:00:00.000Z",
-      isBanned: false,
-      hasVerifiedBadge: false,
-      isDemo: true,
-    })
+    console.error("Roblox user API error:", error)
+    return NextResponse.json({ error: "API request failed" }, { status: 500 })
   }
 }
