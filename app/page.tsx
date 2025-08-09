@@ -75,7 +75,7 @@ const pets: Pet[] = [
   {
     id: "3",
     name: "Fennec Fox",
-    image: "/fennec-fox-cute.png,
+    image: "/fennec-fox-cute.png",
     quantity: 0,
     claimed: false,
   },
@@ -96,14 +96,14 @@ const pets: Pet[] = [
   {
     id: "6",
     name: "Mimic Octopus",
-    image: "/purple-octopus.png
+    image: "/purple-octopus.png",
     quantity: 0,
     claimed: false,
   },
   {
     id: "7",
     name: "Disco Bee",
-    image: "/disco-bee-colorful.png,
+    image: "/disco-bee-colorful.png",
     quantity: 0,
     claimed: false,
   },
@@ -1129,3 +1129,4 @@ export default function PetSeedStore() {
     </div>
   )
 }
+
