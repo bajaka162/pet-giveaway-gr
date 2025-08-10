@@ -11,4 +11,6 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default {
+  distDir: 'dist',
+};
